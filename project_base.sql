@@ -46,7 +46,7 @@ CREATE TABLE Song (
 CREATE TABLE Singer (
     singer_id INT IDENTITY(1,1) PRIMARY KEY,
     singer_name VARCHAR(30),
-    country VARCHAR(10),
+    country VARCHAR(3),
 );
 
 CREATE TABLE Song_List (
