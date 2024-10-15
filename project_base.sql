@@ -638,4 +638,45 @@ VALUES (1, 1),
        (29, 29),
        (30, 30);
 
+-- 10 Descriptive Aggregate, Joins, Subqueries
+
+-- Count the total number of songs
+SELECT COUNT(song_id) AS total_songs FROM Song;
+
+-- Count average duration of songs
+SELECT AVG(duration) AS average_song_duration FROM Song;
+
+-- List the names of singers and the albums they have released
+SELECT Singer.singer_name, Album.album_name FROM Singer
+JOIN release ON Singer.singer_id = release.singer_id
+JOIN Album ON release.album_id = Album.album_id;
+
+-- Find all songs in song lists created by user 1
+SELECT Song.song_name, Song_List.list_name FROM Song
+JOIN contain ON Song.song_id = contain.song_id
+JOIN Song_List ON contain.song_list_id = Song_List.song_list_id
+WHERE Song_List.user_id = 1;
+
+-- Find the average rating of song lists liked by listeners.
+SELECT Song_List.list_name, AVG(like_list.rating) AS average_rating FROM Song_List
+JOIN like_list ON Song_List.song_list_id = like_list.song_list_id GROUP BY Song_List.list_name;
+
+-- List each singer and the total number of songs they have sung
+SELECT Singer.singer_name, COUNT(sing.song_id) AS total_songs_sung FROM Singer
+JOIN sing ON Singer.singer_id = sing.singer_id GROUP BY Singer.singer_name;
+
+-- Subquery: Find the user with the highest number of listens
+SELECT user_id, listen_num FROM Listener
+WHERE listen_num = ( SELECT MAX(listen_num) FROM Listener);
+
+-- Subquery: Find the user who has created the most song lists
+SELECT user_id, COUNT(song_list_id) AS total_song_lists FROM Song_List GROUP BY user_id
+HAVING COUNT(song_list_id) = ( SELECT MAX(total) FROM (SELECT user_id, COUNT(song_list_id) AS total FROM Song_List GROUP BY user_id) AS subquery);
+
+-- Count how many distinct genres are tagged in the add_tag table
+SELECT COUNT(DISTINCT genre) AS total_genres FROM add_tag;
+
+-- Find the Average Speed of Songs by Genre
+SELECT genre, AVG(speed) AS average_speed FROM add_tag GROUP BY genre;
+
 
