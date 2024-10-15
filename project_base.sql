@@ -13,7 +13,7 @@ GO
 
 CREATE TABLE Users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
-    register_date BIGINT, 
+    register_time BIGINT, 
     email VARCHAR(50),
 );
 
@@ -39,7 +39,7 @@ CREATE TABLE Listener (
 CREATE TABLE Song (
     song_id INT IDENTITY(1,1) PRIMARY KEY,
     song_name VARCHAR(30),
-    release_date BIGINT,
+    release_date Date,
     duration INT,
 );
 
@@ -141,7 +141,7 @@ ADD CONSTRAINT chk_listen_num
 CHECK (listen_num >= 0);
 
 -- Insert data into Users table 
-INSERT INTO Users (register_date, email) 
+INSERT INTO Users (register_time, email) 
 VALUES (1630454400, 'user1@example.com'), 
        (1630540800, 'user2@example.com'),
        (1630627200, 'user3@example.com'),
@@ -275,36 +275,36 @@ VALUES (1, 2000, 100),
 
 -- Insert data into Song table
 INSERT INTO Song (song_name, release_date, duration)
-VALUES ('Song A', 1614556800, 240), 
-       ('Song B', 1614643200, 300),
-       ('Song C', 1614729600, 180),
-       ('Song D', 1614816000, 220),
-       ('Song E', 1614902400, 210),
-       ('Song F', 1614988800, 260),
-       ('Song G', 1615075200, 200),
-       ('Song H', 1615161600, 240),
-       ('Song I', 1615248000, 245),
-       ('Song J', 1615334400, 270),
-       ('Song K', 1615420800, 280),
-       ('Song L', 1615507200, 290),
-       ('Song M', 1615593600, 210),
-       ('Song N', 1615680000, 230),
-       ('Song O', 1615766400, 250),
-       ('Song P', 1615852800, 240),
-       ('Song Q', 1615939200, 180),
-       ('Song R', 1616025600, 220),
-       ('Song S', 1616112000, 200),
-       ('Song T', 1616198400, 190),
-       ('Song U', 1616284800, 230),
-       ('Song V', 1616371200, 280),
-       ('Song W', 1616457600, 270),
-       ('Song X', 1616544000, 190),
-       ('Song Y', 1616630400, 210),
-       ('Song Z', 1616716800, 220),
-       ('Song AA', 1616803200, 230),
-       ('Song BB', 1616889600, 240),
-       ('Song CC', 1616976000, 200),
-       ('Song DD', 1617062400, 210);
+VALUES ('Song A', '2021-03-01', 240), 
+       ('Song B', '2021-03-02', 300),
+       ('Song C', '2021-03-03', 180),
+       ('Song D', '2021-03-04', 220),
+       ('Song E', '2021-03-05', 210),
+       ('Song F', '2021-03-06', 260),
+       ('Song G', '2021-03-07', 200),
+       ('Song H', '2021-03-08', 240),
+       ('Song I', '2021-03-09', 245),
+       ('Song J', '2021-03-10', 270),
+       ('Song K', '2021-03-12', 280),
+       ('Song L', '2021-03-13', 290),
+       ('Song M', '2021-03-14', 210),
+       ('Song N', '2021-03-15', 230),
+       ('Song O', '2021-03-16', 250),
+       ('Song P', '2021-03-17', 240),
+       ('Song Q', '2021-03-18', 180),
+       ('Song R', '2021-03-19', 220),
+       ('Song S', '2021-03-20', 200),
+       ('Song T', '2021-03-21', 190),
+       ('Song U', '2021-03-22', 230),
+       ('Song V', '2021-03-23', 280),
+       ('Song W', '2021-03-24', 270),
+       ('Song X', '2021-03-25', 190),
+       ('Song Y', '2021-03-26', 210),
+       ('Song Z', '2021-03-27', 220),
+       ('Song AA', '2021-03-28', 230),
+       ('Song BB', '2021-03-29', 240),
+       ('Song CC', '2021-03-30', 200),
+       ('Song DD', '2021-03-31', 210);
 
 -- Insert data into Singer table 
 INSERT INTO Singer (singer_name, country)
