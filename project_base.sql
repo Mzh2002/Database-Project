@@ -13,7 +13,7 @@ GO
 
 CREATE TABLE Users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
-    register_time BIGINT, 
+    register_time TIMESTAMP, 
     email VARCHAR(50),
 );
 
