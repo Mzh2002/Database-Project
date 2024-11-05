@@ -15,6 +15,7 @@ CREATE TABLE Users (
     user_id INT IDENTITY(1,1) PRIMARY KEY,
     register_time TIMESTAMP, 
     email VARCHAR(50),
+    user_name VARCHAR(50),
 );
 
 CREATE TABLE User_Preference(
