@@ -77,7 +77,7 @@ CREATE TABLE create_list (
     song_list_id INT,
     user_id INT,
     tag VARCHAR(50),
-    description TEXT,
+    [description] TEXT,
     PRIMARY KEY (song_list_id, user_id),
     FOREIGN KEY (song_list_id) REFERENCES Song_List(song_list_id),
     FOREIGN KEY (user_id) REFERENCES Creator(user_id)
