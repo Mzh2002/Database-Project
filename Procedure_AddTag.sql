@@ -1,5 +1,8 @@
 DROP PROCEDURE IF EXISTS AddTagToSong;
 GO
+/*
+This procedure allows users to add or update tags for a song, allow fast updating
+*/
 
 CREATE PROCEDURE AddTagToSong
     @song_id INT,
@@ -32,7 +35,6 @@ BEGIN
             emotion = @emotion
         WHERE song_id = @song_id;
 
-        PRINT 'Tag updated for the song';
     END
     ELSE
     BEGIN
@@ -40,6 +42,21 @@ BEGIN
         INSERT INTO add_tag (song_id, speed, genre, emotion)
         VALUES (@song_id, @speed, @genre, @emotion);
 
-        PRINT 'Tag added to the song';
     END
 END;
+
+--example
+--case 1: normal add
+EXEC AddTagToSong
+    @song_id = 1,
+    @speed = 120.5,
+    @genre = 'Pop-Rock',
+    @emotion = 'Joyful';
+GO
+--case 2: the not existing song
+EXEC AddTagToSong
+    @song_id = 31,
+    @speed = 118.0,
+    @genre = 'Alternative',
+    @emotion = 'Nostalgic';
+GO

@@ -1,3 +1,8 @@
+DROP PROCEDURE IF EXISTS AddSongToPlaylist;
+GO
+/*
+This procedure allows user to add song to play list quickly
+*/
 CREATE PROCEDURE AddSongToPlaylist
     @song_list_id INT,
     @song_id INT
@@ -17,5 +22,20 @@ BEGIN
     VALUES (@song_list_id, @song_id);
 END;
 
-   
+--example
+--case 1: normal add
+EXEC AddSongToPlaylist
+    @song_list_id = 1,
+    @song_id = 3;
+GO
+--case 2: add a not existing song
+EXEC AddSongToPlaylist
+    @song_list_id = 1,
+    @song_id = 100;
+GO
 
+--case 2: add to a not existing song list
+EXEC AddSongToPlaylist
+    @song_list_id = 100,
+    @song_id = 1;
+GO
