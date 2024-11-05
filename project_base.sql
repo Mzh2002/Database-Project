@@ -52,8 +52,8 @@ CREATE TABLE Singer (
 
 CREATE TABLE Song_List (
     song_list_id INT IDENTITY(1,1) PRIMARY KEY,
-    user_id INT,
-    FOREIGN KEY (user_id) REFERENCES Users(user_id),
+    --user_id INT,
+    --FOREIGN KEY (user_id) REFERENCES Users(user_id),
     list_name VARCHAR(30),
 );
 
@@ -341,37 +341,37 @@ VALUES ('Singer A', 'US'),
        ('Singer DD', 'GR');
 
 -- Insert data into Song_List table
-INSERT INTO Song_List (user_id, list_name)
-VALUES (1, 'Playlist A'),
-       (2, 'Playlist B'),
-       (3, 'Playlist C'),
-       (4, 'Playlist D'),
-       (5, 'Playlist E'),
-       (6, 'Playlist F'),
-       (7, 'Playlist G'),
-       (8, 'Playlist H'),
-       (9, 'Playlist I'),
-       (10, 'Playlist J'),
-       (11, 'Playlist K'),
-       (12, 'Playlist L'),
-       (13, 'Playlist M'),
-       (14, 'Playlist N'),
-       (15, 'Playlist O'),
-       (16, 'Playlist P'),
-       (17, 'Playlist Q'),
-       (18, 'Playlist R'),
-       (19, 'Playlist S'),
-       (20, 'Playlist T'),
-       (21, 'Playlist U'),
-       (22, 'Playlist V'),
-       (23, 'Playlist W'),
-       (24, 'Playlist X'),
-       (25, 'Playlist Y'),
-       (26, 'Playlist Z'),
-       (27, 'Playlist AA'),
-       (28, 'Playlist BB'),
-       (29, 'Playlist CC'),
-       (30, 'Playlist DD');
+INSERT INTO Song_List (list_name)
+VALUES ('Playlist A'),
+       ('Playlist B'),
+       ('Playlist C'),
+       ('Playlist D'),
+       ('Playlist E'),
+       ('Playlist F'),
+       ('Playlist G'),
+       ('Playlist H'),
+       ('Playlist I'),
+       ('Playlist J'),
+       ('Playlist K'),
+       ('Playlist L'),
+       ('Playlist M'),
+       ('Playlist N'),
+       ('Playlist O'),
+       ('Playlist P'),
+       ('Playlist Q'),
+       ('Playlist R'),
+       ('Playlist S'),
+       ('Playlist T'),
+       ('Playlist U'),
+       ('Playlist V'),
+       ('Playlist W'),
+       ('Playlist X'),
+       ('Playlist Y'),
+       ('Playlist Z'),
+       ('Playlist AA'),
+       ('Playlist BB'),
+       ('Playlist CC'),
+       ('Playlist DD');
 
 -- Insert data into Album table
 INSERT INTO Album (album_name, album_type)
@@ -656,7 +656,8 @@ JOIN Album ON release.album_id = Album.album_id;
 SELECT Song.song_name, Song_List.list_name FROM Song
 JOIN contain ON Song.song_id = contain.song_id
 JOIN Song_List ON contain.song_list_id = Song_List.song_list_id
-WHERE Song_List.user_id = 1;
+JOIN create_list ON create_list.song_list_id = Song_List.song_list_id
+WHERE create_list.user_id = 1;
 
 -- Find the average rating of song lists liked by listeners.
 SELECT Song_List.list_name, AVG(like_list.rating) AS average_rating FROM Song_List
@@ -671,8 +672,16 @@ SELECT user_id, listen_num FROM Listener
 WHERE listen_num = ( SELECT MAX(listen_num) FROM Listener);
 
 -- Subquery: Find the user who has created the most song lists
-SELECT user_id, COUNT(song_list_id) AS total_song_lists FROM Song_List GROUP BY user_id
-HAVING COUNT(song_list_id) = ( SELECT MAX(total) FROM (SELECT user_id, COUNT(song_list_id) AS total FROM Song_List GROUP BY user_id) AS subquery);
+SELECT user_id, COUNT(song_list_id) AS total_song_lists 
+FROM create_list 
+GROUP BY user_id
+HAVING COUNT(song_list_id) = (
+    SELECT MAX(total) FROM (
+        SELECT user_id, COUNT(song_list_id) AS total 
+        FROM create_list 
+        GROUP BY user_id
+    ) AS subquery
+);
 
 -- Count how many distinct genres are tagged in the add_tag table
 SELECT COUNT(DISTINCT genre) AS total_genres FROM add_tag;
