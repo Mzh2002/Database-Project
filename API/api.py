@@ -44,6 +44,7 @@ class Contain(db.Model):
 
 
 # Routes
+# ---------------------------------------- API for users ---------------------------------------- 
 @app.route('/users', methods=['POST'])
 def create_user():
     data = request.json
@@ -71,6 +72,28 @@ def get_user(user_id):
         })
     else:
         return jsonify({'error': 'User not found'}), 404
+    
+@app.route('/users/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    data = request.json
+    user = Users.query.get(user_id)
+    if user:
+        user.email = data.get('email', user.email)
+        user.user_name = data.get('user_name', user.user_name)
+        db.session.commit()
+        return jsonify({'message': 'User updated successfully'})
+    return jsonify({'error': 'User not found'}), 404
+
+@app.route('/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = Users.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': 'User deleted successfully'})
+    return jsonify({'error': 'User not found'}), 404
+
+# ---------------------------------------- API for songs ---------------------------------------- 
 
 @app.route('/songs', methods=['POST'])
 def create_song():
@@ -96,6 +119,29 @@ def get_song(song_id):
         })
     else:
         return jsonify({'error': 'Song not found'}), 404
+    
+@app.route('/songs/<int:song_id>', methods=['PUT'])
+def update_song(song_id):
+    data = request.json
+    song = Song.query.get(song_id)
+    if song:
+        song.song_name = data.get('song_name', song.song_name)
+        song.release_date = data.get('release_date', song.release_date)
+        song.duration = data.get('duration', song.duration)
+        db.session.commit()
+        return jsonify({'message': 'Song updated successfully'})
+    return jsonify({'error': 'Song not found'}), 404
+
+@app.route('/songs/<int:song_id>', methods=['DELETE'])
+def delete_song(song_id):
+    song = Song.query.get(song_id)
+    if song:
+        db.session.delete(song)
+        db.session.commit()
+        return jsonify({'message': 'Song deleted successfully'})
+    return jsonify({'error': 'Song not found'}), 404
+
+# ---------------------------------------- API for songlists ---------------------------------------- 
 
 @app.route('/song-lists', methods=['POST'])
 def create_song_list():
@@ -119,6 +165,135 @@ def add_song_to_list(song_list_id):
     db.session.add(contain)
     db.session.commit()
     return jsonify({'message': 'Song added to list successfully'}), 201
+
+@app.route('/song-lists/<int:song_list_id>', methods=['PUT'])
+def update_song_list(song_list_id):
+    """Update an existing SongList."""
+    data = request.json
+    song_list = SongList.query.get(song_list_id)
+    if song_list:
+        song_list.list_name = data.get('list_name', song_list.list_name)
+        db.session.commit()
+        return jsonify({'message': 'Song list updated successfully'})
+    return jsonify({'error': 'Song list not found'}), 404
+
+
+@app.route('/song-lists/<int:song_list_id>', methods=['DELETE'])
+def delete_song_list(song_list_id):
+    """Delete a SongList by ID."""
+    song_list = SongList.query.get(song_list_id)
+    if song_list:
+        db.session.delete(song_list)
+        db.session.commit()
+        return jsonify({'message': 'Song list deleted successfully'})
+    return jsonify({'error': 'Song list not found'}), 404
+
+# ---------------------------------------- API for user contain table ---------------------------------------- 
+
+@app.route('/song-lists/<int:song_list_id>/songs', methods=['POST'])
+def insert_song_to_list(song_list_id):
+    """Add a Song to a SongList."""
+    data = request.json
+    song_id = data.get('song_id')
+    song_list = SongList.query.get(song_list_id)
+    song = Song.query.get(song_id)
+    if not song_list or not song:
+        return jsonify({'error': 'Song or Song List not found'}), 404
+    contain = Contain(song_list_id=song_list_id, song_id=song_id)
+    db.session.add(contain)
+    db.session.commit()
+    return jsonify({'message': 'Song added to list successfully'}), 201
+
+
+@app.route('/song-lists/<int:song_list_id>/songs', methods=['GET'])
+def get_songs_in_list(song_list_id):
+    """Retrieve all Songs in a SongList."""
+    song_list = SongList.query.get(song_list_id)
+    if not song_list:
+        return jsonify({'error': 'Song list not found'}), 404
+
+    songs_in_list = Contain.query.filter_by(song_list_id=song_list_id).all()
+    songs = [{'song_id': contain.song_id} for contain in songs_in_list]
+
+    return jsonify({
+        'song_list_id': song_list_id,
+        'songs': songs
+    })
+
+
+@app.route('/song-lists/<int:song_list_id>/songs/<int:song_id>', methods=['PUT'])
+def update_song_in_list(song_list_id, song_id):
+    """Update a Song in a SongList (change the song association)."""
+    data = request.json
+    new_song_id = data.get('new_song_id')
+
+    contain = Contain.query.filter_by(song_list_id=song_list_id, song_id=song_id).first()
+    if not contain:
+        return jsonify({'error': 'Association not found'}), 404
+
+    # Ensure the new song exists
+    new_song = Song.query.get(new_song_id)
+    if not new_song:
+        return jsonify({'error': 'New song not found'}), 404
+
+    contain.song_id = new_song_id
+    db.session.commit()
+    return jsonify({'message': 'Song in list updated successfully'})
+
+
+@app.route('/song-lists/<int:song_list_id>/songs/<int:song_id>', methods=['DELETE'])
+def remove_song_from_list(song_list_id, song_id):
+    """Remove a Song from a SongList."""
+    contain = Contain.query.filter_by(song_list_id=song_list_id, song_id=song_id).first()
+    if not contain:
+        return jsonify({'error': 'Association not found'}), 404
+
+    db.session.delete(contain)
+    db.session.commit()
+    return jsonify({'message': 'Song removed from list successfully'})
+
+# ---------------------------------------- API for user preference ---------------------------------------- 
+
+@app.route('/preferences', methods=['POST'])
+def create_preference():
+    data = request.json
+    preference = UserPreference(
+        user_id=data.get('user_id'),
+        favorite_song_category=data.get('favorite_song_category')
+    )
+    db.session.add(preference)
+    db.session.commit()
+    return jsonify({'message': 'Preference created successfully'}), 201
+
+@app.route('/preferences/<int:user_id>', methods=['GET'])
+def get_preference(user_id):
+    preference = UserPreference.query.get(user_id)
+    if preference:
+        return jsonify({
+            'user_id': preference.user_id,
+            'favorite_song_category': preference.favorite_song_category
+        })
+    return jsonify({'error': 'Preference not found'}), 404
+
+@app.route('/preferences/<int:user_id>', methods=['PUT'])
+def update_preference(user_id):
+    data = request.json
+    preference = UserPreference.query.get(user_id)
+    if preference:
+        preference.favorite_song_category = data.get('favorite_song_category', preference.favorite_song_category)
+        db.session.commit()
+        return jsonify({'message': 'Preference updated successfully'})
+    return jsonify({'error': 'Preference not found'}), 404
+
+@app.route('/preferences/<int:user_id>', methods=['DELETE'])
+def delete_preference(user_id):
+    preference = UserPreference.query.get(user_id)
+    if preference:
+        db.session.delete(preference)
+        db.session.commit()
+        return jsonify({'message': 'Preference deleted successfully'})
+    return jsonify({'error': 'Preference not found'}), 404
+
 
 # Initialize Database
 with app.app_context():
