@@ -104,9 +104,10 @@ def delete_user(user_id):
 @app.route('/songs', methods=['POST'])
 def create_song():
     data = request.json
+    release_date = datetime.strptime(data.get('release_date'), "%Y-%m-%d").date()
     new_song = Song(
         song_name=data.get('song_name'),
-        release_date=data.get('release_date'),
+        release_date= release_date,
         duration=data.get('duration')
     )
     db.session.add(new_song)
@@ -132,7 +133,7 @@ def update_song(song_id):
     song = Song.query.get(song_id)
     if song:
         song.song_name = data.get('song_name', song.song_name)
-        song.release_date = data.get('release_date', song.release_date)
+        song.release_date = datetime.strptime(data['release_date'], "%Y-%m-%d").date()
         song.duration = data.get('duration', song.duration)
         db.session.commit()
         return jsonify({'message': 'Song updated successfully'})
@@ -174,7 +175,6 @@ def add_song_to_list(song_list_id):
 
 @app.route('/song-lists/<int:song_list_id>', methods=['PUT'])
 def update_song_list(song_list_id):
-    """Update an existing SongList."""
     data = request.json
     song_list = SongList.query.get(song_list_id)
     if song_list:
@@ -186,7 +186,6 @@ def update_song_list(song_list_id):
 
 @app.route('/song-lists/<int:song_list_id>', methods=['DELETE'])
 def delete_song_list(song_list_id):
-    """Delete a SongList by ID."""
     song_list = SongList.query.get(song_list_id)
     if song_list:
         db.session.delete(song_list)
@@ -198,7 +197,6 @@ def delete_song_list(song_list_id):
 
 @app.route('/song-lists/<int:song_list_id>/songs', methods=['POST'])
 def insert_song_to_list(song_list_id):
-    """Add a Song to a SongList."""
     data = request.json
     song_id = data.get('song_id')
     song_list = SongList.query.get(song_list_id)
@@ -213,7 +211,6 @@ def insert_song_to_list(song_list_id):
 
 @app.route('/song-lists/<int:song_list_id>/songs', methods=['GET'])
 def get_songs_in_list(song_list_id):
-    """Retrieve all Songs in a SongList."""
     song_list = SongList.query.get(song_list_id)
     if not song_list:
         return jsonify({'error': 'Song list not found'}), 404
@@ -229,7 +226,6 @@ def get_songs_in_list(song_list_id):
 
 @app.route('/song-lists/<int:song_list_id>/songs/<int:song_id>', methods=['PUT'])
 def update_song_in_list(song_list_id, song_id):
-    """Update a Song in a SongList (change the song association)."""
     data = request.json
     new_song_id = data.get('new_song_id')
 
@@ -249,7 +245,6 @@ def update_song_in_list(song_list_id, song_id):
 
 @app.route('/song-lists/<int:song_list_id>/songs/<int:song_id>', methods=['DELETE'])
 def remove_song_from_list(song_list_id, song_id):
-    """Remove a Song from a SongList."""
     contain = Contain.query.filter_by(song_list_id=song_list_id, song_id=song_id).first()
     if not contain:
         return jsonify({'error': 'Association not found'}), 404
