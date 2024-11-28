@@ -87,11 +87,17 @@ def update_user(user_id):
 @app.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     user = Users.query.get(user_id)
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({'message': 'User deleted successfully'})
-    return jsonify({'error': 'User not found'}), 404
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    # Delete associated UserPreference first
+    if user.preferences:
+        db.session.delete(user.preferences)
+    
+    # Delete the user
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'message': 'User and associated preference deleted successfully'}), 200
 
 # ---------------------------------------- API for songs ---------------------------------------- 
 
