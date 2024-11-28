@@ -144,9 +144,9 @@ def delete_song(song_id):
     if not song:
         return jsonify({'error': 'Song not found'}), 404
 
-    # delete the song in the contain table
+    # delete the song in the contain table too
     Contain.query.filter_by(song_id=song_id).delete()
-
+    # delete the song item
     db.session.delete(song)
     db.session.commit()
     return jsonify({'message': 'Song deleted successfully'})
@@ -274,6 +274,7 @@ def create_preference(user_id):
         favorite_song_category=data.get('favorite_song_category')
     )
     db.session.add(new_preference)
+    # update the user table's preference 
     user.preferences = new_preference 
     db.session.commit()
 
@@ -306,6 +307,7 @@ def update_preference(user_id):
         return jsonify({'error': 'User has no preferences to update'}), 400
 
     data = request.json
+    # update the preference in user 
     user.preferences.favorite_song_category = data.get('favorite_song_category', user.preferences.favorite_song_category)
     db.session.commit()
 
@@ -325,6 +327,7 @@ def delete_preference(user_id):
         return jsonify({'error': 'User has no preferences to delete'}), 400
 
     db.session.delete(user.preferences)
+    # also delete in the user 
     user.preferences = None  
     db.session.commit()
 
