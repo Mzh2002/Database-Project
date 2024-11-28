@@ -254,45 +254,77 @@ def remove_song_from_list(song_list_id, song_id):
 
 # ---------------------------------------- API for user preference ---------------------------------------- 
 
-@app.route('/preferences', methods=['POST'])
-def create_preference():
+@app.route('/users/<int:user_id>/preferences', methods=['POST'])
+def create_preference(user_id):
+    user = Users.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
     data = request.json
-    preference = UserPreference(
-        user_id=data.get('user_id'),
+    # Check if the user already has a preference
+    if user.preferences:
+        return jsonify({'error': 'User already has a preference'}), 400
+
+    new_preference = UserPreference(
+        user_id=user_id,
         favorite_song_category=data.get('favorite_song_category')
     )
-    db.session.add(preference)
+    db.session.add(new_preference)
+    user.preferences = new_preference 
     db.session.commit()
-    return jsonify({'message': 'Preference created successfully'}), 201
 
-@app.route('/preferences/<int:user_id>', methods=['GET'])
-def get_preference(user_id):
-    preference = UserPreference.query.get(user_id)
-    if preference:
+    return jsonify({
+        'message': 'Preference created and user updated successfully',
+        'user_id': user.user_id,
+        'favorite_song_category': new_preference.favorite_song_category
+    }), 201
+
+@app.route('/users/<int:user_id>/preferences', methods=['GET'])
+def get_user_preference(user_id):
+    user = Users.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if user.preferences:
         return jsonify({
-            'user_id': preference.user_id,
-            'favorite_song_category': preference.favorite_song_category
+            'user_id': user.user_id,
+            'favorite_song_category': user.preferences.favorite_song_category
         })
-    return jsonify({'error': 'Preference not found'}), 404
+    return jsonify({'message': 'User has no preferences'}), 200
 
-@app.route('/preferences/<int:user_id>', methods=['PUT'])
+@app.route('/users/<int:user_id>/preferences', methods=['PUT'])
 def update_preference(user_id):
-    data = request.json
-    preference = UserPreference.query.get(user_id)
-    if preference:
-        preference.favorite_song_category = data.get('favorite_song_category', preference.favorite_song_category)
-        db.session.commit()
-        return jsonify({'message': 'Preference updated successfully'})
-    return jsonify({'error': 'Preference not found'}), 404
+    user = Users.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
 
-@app.route('/preferences/<int:user_id>', methods=['DELETE'])
+    if not user.preferences:
+        return jsonify({'error': 'User has no preferences to update'}), 400
+
+    data = request.json
+    user.preferences.favorite_song_category = data.get('favorite_song_category', user.preferences.favorite_song_category)
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Preference updated successfully',
+        'user_id': user.user_id,
+        'favorite_song_category': user.preferences.favorite_song_category
+    }), 200
+
+@app.route('/users/<int:user_id>/preferences', methods=['DELETE'])
 def delete_preference(user_id):
-    preference = UserPreference.query.get(user_id)
-    if preference:
-        db.session.delete(preference)
-        db.session.commit()
-        return jsonify({'message': 'Preference deleted successfully'})
-    return jsonify({'error': 'Preference not found'}), 404
+    user = Users.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if not user.preferences:
+        return jsonify({'error': 'User has no preferences to delete'}), 400
+
+    db.session.delete(user.preferences)
+    user.preferences = None  
+    db.session.commit()
+
+    return jsonify({'message': 'Preference deleted successfully'}), 200
 
 
 # Initialize Database
