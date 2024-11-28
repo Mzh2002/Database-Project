@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import datetime
 from datetime import datetime
 app = Flask(__name__)
 
@@ -49,7 +48,7 @@ class Contain(db.Model):
 def create_user():
     data = request.json
     new_user = Users(
-        register_time=datetime.datetime.now(),
+        register_time=datetime.now(),
         email=data.get('email'),
         user_name=data.get('user_name')
     )
