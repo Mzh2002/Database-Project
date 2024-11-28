@@ -150,7 +150,7 @@ def delete_song(song_id):
 
     db.session.delete(song)
     db.session.commit()
-    return jsonify({'error': 'Song not found'}), 404
+    return jsonify({'message': 'Song deleted successfully'})
 
 # ---------------------------------------- API for songlists ---------------------------------------- 
 
