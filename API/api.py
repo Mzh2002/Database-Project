@@ -142,10 +142,14 @@ def update_song(song_id):
 @app.route('/songs/<int:song_id>', methods=['DELETE'])
 def delete_song(song_id):
     song = Song.query.get(song_id)
-    if song:
-        db.session.delete(song)
-        db.session.commit()
-        return jsonify({'message': 'Song deleted successfully'})
+    if not song:
+        return jsonify({'error': 'Song not found'}), 404
+
+    # delete the song in the contain table
+    Contain.query.filter_by(song_id=song_id).delete()
+
+    db.session.delete(song)
+    db.session.commit()
     return jsonify({'error': 'Song not found'}), 404
 
 # ---------------------------------------- API for songlists ---------------------------------------- 
